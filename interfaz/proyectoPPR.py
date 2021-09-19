@@ -181,9 +181,10 @@ def drawSolution(resultData):
             l21.pack()
             l21.place(x=0,y=300,height=30,width=618)
             
-            frame1 = tk.Frame(sFrame, bg ='white', height=350, width=620, bd= 1,relief ="solid")
+            frame1 = tk.Frame(sFrame, bg ='white', height=350, width=790, bd= 1,relief ="solid")
             frame1.pack(fill=None,expand=1)
             frame1.place(x=650, y=230+(350*idx))
+            
             l12 = tk.Label(frame1,image=dock, bg ='white', fg = 'black', font =("Courier", 20),compound=tk.LEFT, bd= 1,
             text='MUELLE N° '+ str(fm))
             l12.pack()
@@ -263,10 +264,15 @@ scrollBar = tk.Scrollbar(mainFrame,orient=VERTICAL, command=canvas.yview)
 scrollBar.pack(side=RIGHT,fill=Y)
 
 canvas.configure(yscrollcommand=scrollBar.set)
+#canvas.configure(xscrollcommand=scrollBar.set)
 canvas.bind('<Configure>',lambda e:canvas.configure(scrollregion=canvas.bbox("all")))
 
 sFrame = tk.Frame(canvas,  bg= 'beige')
-canvas.create_window((0,0),window=sFrame,anchor="nw",height=8000,width=1300)
+canvas.create_window((0,0),window=sFrame,anchor="nw",height=8000,width=1450)
+
+scrollBarx = tk.Scrollbar(canvas, orient='horizontal',command=canvas.xview)
+scrollBarx.pack(side=TOP,fill=X)
+canvas.configure(xscrollcommand=scrollBarx.set)
 
 ship = tk.PhotoImage(file="ship.png")
 dock = tk.PhotoImage(file="dock.png")

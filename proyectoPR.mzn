@@ -71,7 +71,8 @@ array[ships] of var 1..length(P_estadost) : arrivalTime;
 %%Hora para empezar la descarga
 array[ships] of var 1..length(P_estadost) : unloadStartTime;
 
-%%Restricciones
+%%Restricciones Básicas
+
 %Verificación para evitar cruces de tiempo en el mismo muelle
 constraint forall([
               if i != j then
@@ -93,7 +94,8 @@ constraint forall(s in ships, n in arrivalTime[s]..unloadStartTime[s] + shipsUnl
     (P_estadosm[n] = 4*shipsTideState[s,1] \/ P_estadosm[n] = 5*shipsTideState[s,2] \/ P_estadosm[n] = 6*shipsTideState[s,3])
     else false 
     endif);
-    
+
+%%Restricciones Adicionales    
 %%Preasignacion fuerte
 constraint forall(i in 1..length(horaLlegada) div 2)(
     arrivalTime[horaLlegada[i,1]] = horaLlegada[i,2]
