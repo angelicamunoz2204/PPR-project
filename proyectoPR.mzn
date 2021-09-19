@@ -1,5 +1,4 @@
 include "globals.mzn"; 
-include "datosPruebaMinizinc2.dzn";
 
 %%Entradas
 %%Cantidad de muelles
@@ -72,23 +71,7 @@ array[ships] of var 1..length(P_estadost) : arrivalTime;
 %%Hora para empezar la descarga
 array[ships] of var 1..length(P_estadost) : unloadStartTime;
 
-
-%%Predicados
-predicate verifyMarineMeteorologyConditions(array [int,1..3] of var 0..1: weather,array [int,1..3] of var 0..1: tide, array [int] of  1..3: weatherState, array [int] of  4..6: tideState) = 
-          forall([
-              if weather[i,j] = 0 
-                 then weatherState[arrivalTime[i]] != j /\ weatherState[unloadStartTime[i]] != j
-              endif 
-              /\
-              if tide[i,j] = 0 
-                 then tideState[arrivalTime[i]] != j+3 /\ tideState[unloadStartTime[i]] != j+3
-              endif 
-           | i in ships, j in 1..3]);
-
 %%Restricciones
-%%Condiciones de la meteorologia marina (clima y marea)
-%constraint verifyMarineMeteorologyConditions(shipsWeather,shipsTideState,P_estadost,P_estadosm);
-
 %Verificación para evitar cruces de tiempo en el mismo muelle
 constraint forall([
               if i != j then
@@ -128,8 +111,17 @@ constraint forall(i in ships, j in 1..muelles)(
 solve satisfy;
 
 %%Salida           
-output ["Barcos          :",show(shipsID),"\n"];
-output ["Muelles         :",show(docks),"\n"];
-output ["Hora de llegada :",show(arrivalTime),"\n"];
-output ["  tiempo descarga :",show(shipsUnloadTime),"\n"];
-output ["Hora de descarga:",show(unloadStartTime),"\n"];
+output ["{'Barcos' :",show(shipsID),",\n"];
+output ["'Muelles' :",show([M_codigoMuelles[i] | i in 1..muelles]),",\n"];
+output ["'TiempoEspera' :",show(shipsWaitTime),",\n"];
+output ["'ClimaBarco' :",show(shipsWeather),",\n"];
+output ["'TiempoDesca' :",show(shipsUnloadTime),",\n"];
+output ["'MareaBarco' :",show(shipsTideState),",\n"];
+output ["'Clima' :",show(P_estadost),",\n"];
+output ["'Marea' :",show(P_estadosm),",\n"];
+output ["'HoraLlegada' :",show(horaLlegada),",\n"];
+output ["'HorasHabil' :",show(horasHabiles),",\n"];
+%%Vbles
+output ["'MuelleCorresp' :",show(docks),",\n"];
+output ["'HoraLlegada' :",show(arrivalTime),",\n"];
+output ["'HoraDescarga' :",show(unloadStartTime),"}"];

@@ -1,3 +1,4 @@
+import json
 ##Minizinc
 from logging import exception, root
 from minizinc import Instance, Model, Solver, model
@@ -21,47 +22,38 @@ def conectMinizinc(file):
     result = instance.solve()
     # Output
     #print([result["docks"],result["arrivalTime"],result["unloadStartTime"]])
-    return ([result["docks"],result["arrivalTime"],result["unloadStartTime"]])
+    texto = str(result)
+    texto = texto.replace("'",'"')
+    mijson = json.loads(texto)
+    mijson['ClimaBarco']=arreglo1d_2d(mijson['ClimaBarco'])
+    mijson['MareaBarco']=arreglo1d_2d(mijson['MareaBarco'])
+    mijson['HoraLlegada']=arreglo1d_2d2(mijson['HoraLlegada'])
+    mijson['HorasHabil']=arreglo1d_2d2(mijson['HorasHabil'])
+    return ([result["docks"],result["arrivalTime"],result["unloadStartTime"],mijson])
 
-##suponiendo que ya tengo los arrays
-##sl = se lee del .dzn , cn = codigo normal
-muelles = 2 #sl
-barcos = 12 #sl
-shipsID = [23, 56, 78, 34, 56, 12, 9, 58, 71, 74, 72, 73] #sl
-shipsID = shipsID[:barcos] #cn
-docksID = [45, 67, 32] #sl
-docksID = docksID[:muelles]#cn
-shipsWaitTime = [3, 1, 8, 9, 12, 2, 6, 8, 3, 3, 3, 3] #sl
-shipsWaitTime = shipsWaitTime[:barcos] #cn
-shipsWeather = [[1,0,0],[1,1,0],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]] #sl
-shipsWeather = shipsWeather[:barcos] #cn
-dryWeather = [] #cn
-humidWeather = [] #cn
-rainyWeather = [] #cn
-for sw in shipsWeather: #cn
-    dryWeather.append(sw[0])
-    humidWeather.append(sw[1])
-    rainyWeather.append(sw[2])
+def arreglo1d_2d(arr):
+    it = 0
+    auxp = []
+    while it < len(arr):
+        aux = []
+        aux.append(arr[it])
+        aux.append(arr[it+1])
+        aux.append(arr[it+2])
+        auxp.append(aux)
+        it+=3
+    return auxp
 
-shipsUnloadTime = [8, 4, 1, 1, 3, 7, 7, 2, 8, 10, 11, 10] #sl
-shipsUnloadTime = shipsUnloadTime[:barcos]#cn
+def arreglo1d_2d2(arr):
+    it = 0
+    auxp = []
+    while it < len(arr):
+        aux = []
+        aux.append(arr[it])
+        aux.append(arr[it+1])
+        auxp.append(aux)
+        it+=2
+    return auxp
 
-shipsTideState = [[0,0,1],[0,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]] #sl
-shipsTideState = shipsTideState[:barcos]#cn
-lowTide = [] #cn
-midTide = [] #cn
-highTide = [] #cn
-for st in shipsTideState: #cn
-    lowTide.append(st[0])
-    midTide.append(st[1])
-    highTide.append(st[2])
-#sl
-P_estadost=[1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,2,1,1,1,2,2,2,2,2,3,3,3,3,3,1,1,2,2,2,2,2]
-#sl
-P_estadosm=[5,5,5,4,4,5,5,4,4,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,5,4,5,5,5,5,5,5,5,5,5]
-horaLlegada=[[1,54],[2,15]] #sl
-horasHabiles = [[1,24],[1,144],[1,144]]#sl
-workingHours = horasHabiles[:muelles] #cn
 ##Funciones
 def verifications(condition,frame,posx,posy):
     if condition == 1:
@@ -83,7 +75,6 @@ def selectFile():
         result = conectMinizinc(fileName)
     except Exception as e :
         result = [[0],[0],[0]]
-    #print(result)
     drawSolution(result)
     return result
 
@@ -93,6 +84,34 @@ def drawSolution(resultData):
         lb = Label(sFrame, bg = 'beige', fg = 'black', font =("Courier", 18), height = 3, width = 52, 
         text = "NO HAY SOLUCIÓN").pack()
     else:
+        ##Asignacion variables
+        shipsID = resultData[3]['Barcos']
+        docksID = resultData[3]['Muelles']
+        shipsWaitTime = resultData[3]['TiempoEspera']
+        shipsWeather = resultData[3]['ClimaBarco']
+        dryWeather = []
+        humidWeather = []
+        rainyWeather = []
+        for sw in shipsWeather:
+            dryWeather.append(sw[0])
+            humidWeather.append(sw[1])
+            rainyWeather.append(sw[2])
+
+        shipsUnloadTime = resultData[3]['TiempoDesca']
+        shipsTideState = resultData[3]['MareaBarco']
+        lowTide = []
+        midTide = []
+        highTide = []
+        for st in shipsTideState:
+            lowTide.append(st[0])
+            midTide.append(st[1])
+            highTide.append(st[2])
+
+        P_estadost = resultData[3]['Clima']
+        P_estadosm = resultData[3]['Marea']
+        horaLlegada= resultData[3]['HoraLlegada']
+        workingHours = resultData[3]['HorasHabil']
+
         for idx,fm in enumerate(resultData[0]):
             hours = 'No especificada'
             for h in horaLlegada:
