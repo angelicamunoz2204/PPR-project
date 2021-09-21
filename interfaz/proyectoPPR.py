@@ -27,7 +27,7 @@ def conectMinizinc(file):
     mijson = json.loads(texto)
     mijson['ClimaBarco']=arreglo1d_2d(mijson['ClimaBarco'])
     mijson['MareaBarco']=arreglo1d_2d(mijson['MareaBarco'])
-    mijson['HoraLlegada']=arreglo1d_2d2(mijson['HoraLlegada'])
+    mijson['HoraLlegadas']=arreglo1d_2d2(mijson['HoraLlegadas'])
     mijson['HorasHabil']=arreglo1d_2d2(mijson['HorasHabil'])
     return ([result["docks"],result["arrivalTime"],result["unloadStartTime"],mijson])
 
@@ -109,7 +109,7 @@ def drawSolution(resultData):
 
         P_estadost = resultData[3]['Clima']
         P_estadosm = resultData[3]['Marea']
-        horaLlegada= resultData[3]['HoraLlegada']
+        horaLlegada= resultData[3]['HoraLlegadas']
         workingHours = resultData[3]['HorasHabil']
 
         for idx,fm in enumerate(resultData[0]):

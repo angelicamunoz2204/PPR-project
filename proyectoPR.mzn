@@ -7,6 +7,9 @@ int: muelles;
 %%Cantidad de barcos
 int: barcos;
 
+%Si el usuario desea preasignación fuerte (1) o debil (0)
+0..1: PreasignacionHoraLlegada;
+
 %%set 
 set of int: ships = 1..barcos;
 
@@ -71,10 +74,17 @@ array[ships] of var 1..length(P_estadost) : arrivalTime;
 %%Hora para empezar la descarga
 array[ships] of var 1..length(P_estadost) : unloadStartTime;
 
-%%Restricciones Básicas
+%%Variables de reificación
+var bool : noOverlap;
+var bool : maxWait;
+var bool : climatology;
+var bool : arriShips;
+var bool : scheDocks;
+var int : SUM;
 
+%%Restricciones Básicas
 %Verificación para evitar cruces de tiempo en el mismo muelle
-constraint forall([
+constraint noOverlap = forall([
               if i != j then
                 if docks[i] = docks[j] then 
                   if arrivalTime[i] <= arrivalTime[j] then 
@@ -85,32 +95,38 @@ constraint forall([
            | i in ships, j in ships]);
 
 %Validación del tiempo de espera y de evitar incoherencias
-constraint forall([(unloadStartTime[i]-arrivalTime[i]) <= shipsWaitTime[i] /\ unloadStartTime[i] >= arrivalTime[i] | i in ships]);
+constraint maxWait = forall([(unloadStartTime[i]-arrivalTime[i]) <= shipsWaitTime[i] /\ unloadStartTime[i] >= arrivalTime[i] | i in ships]);
 
 %%Verificacion climatológica (100% confirmada)
-constraint forall(s in ships, n in arrivalTime[s]..unloadStartTime[s] + shipsUnloadTime[s]-1)(
+constraint climatology = forall(s in ships, n in arrivalTime[s]..unloadStartTime[s] + shipsUnloadTime[s]-1)(
   if n <= length(P_estadost) then
     (P_estadost[n] = 1*shipsWeather[s,1]  \/ P_estadost[n] = 2*shipsWeather[s,2] \/ P_estadost[n] = 3*shipsWeather[s,3]) /\ 
     (P_estadosm[n] = 4*shipsTideState[s,1] \/ P_estadosm[n] = 5*shipsTideState[s,2] \/ P_estadosm[n] = 6*shipsTideState[s,3])
     else false 
     endif);
 
+
 %%Restricciones Adicionales    
 %%Preasignacion fuerte
-constraint forall(i in 1..length(horaLlegada) div 2)(
+constraint arriShips = forall(i in 1..length(horaLlegada) div 2)(
     arrivalTime[horaLlegada[i,1]] = horaLlegada[i,2]
   );
   
 %%Horario Muelles
-constraint forall(i in ships, j in 1..muelles)(
+constraint scheDocks = forall(i in ships, j in 1..muelles)(
   if docksID[j] = docks[i] then
     arrivalTime[i] >= horasHabiles[j,1] /\ unloadStartTime[i] + shipsUnloadTime[i]-1 <= horasHabiles[j,2]
    endif
 );
 
+constraint noOverlap + maxWait + climatology + scheDocks = 4;
+constraint SUM = noOverlap + maxWait + climatology + scheDocks + arriShips;
+
+%Fuerte
+constraint if PreasignacionHoraLlegada=1 then SUM = 5 endif;
 
 %resolver
-solve satisfy;
+solve maximize SUM;
 
 %%Salida           
 output ["{'Barcos' :",show(shipsID),",\n"];
@@ -121,7 +137,7 @@ output ["'TiempoDesca' :",show(shipsUnloadTime),",\n"];
 output ["'MareaBarco' :",show(shipsTideState),",\n"];
 output ["'Clima' :",show(P_estadost),",\n"];
 output ["'Marea' :",show(P_estadosm),",\n"];
-output ["'HoraLlegada' :",show(horaLlegada),",\n"];
+output ["'HoraLlegadas' :",show(horaLlegada),",\n"];
 output ["'HorasHabil' :",show(horasHabiles),",\n"];
 %%Vbles
 output ["'MuelleCorresp' :",show(docks),",\n"];

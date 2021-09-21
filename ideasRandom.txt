@@ -1,5 +1,0 @@
-constraint docks[1] = docks[2];
-constraint if docks[1] = docks [2] 
-            then arrivalTime[1] != arrivalTime[2]
-                 /\ (unloadStartTime[2] < unloadStartTime[1] \/ unloadStartTime[2]>unloadStartTime[1]+shipsUnloadTime[1])
-           endif;
