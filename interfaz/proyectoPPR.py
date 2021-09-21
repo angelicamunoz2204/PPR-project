@@ -92,7 +92,7 @@ def drawSolution(resultData):
     if resultData == [[0],[0],[0]]:
         lb = Label(frameG, bg = 'beige', fg = 'black', font =("Courier", 18), height = 1, width = 20, 
         text = "NO HAY SOLUCIÓN")
-        lb.pack()
+        lb.pack(side = LEFT)
     else:
         ##Asignacion variables
         shipsID = resultData[3]['Barcos']
@@ -121,16 +121,24 @@ def drawSolution(resultData):
         P_estadosm = resultData[3]['Marea']
         horaLlegada= resultData[3]['HoraLlegadas']
         workingHours = resultData[3]['HorasHabil']
+        preassignation = resultData[3]['PreFuerte']
+
 
         for idx,fm in enumerate(resultData[0]):
-            hours = 'No especificada'
-            for h in horaLlegada:
-                if(h[0]) == idx+1:
-                    hours = str(h[1])
-            avalaible = ''
-            for i,av in enumerate(docksID):
-                if fm == av:
-                    avalaible = 'desde '+ str(workingHours[i][0])+ ' hasta '+str(workingHours[i][1])
+            if(seleccionar() == 0): 
+                hours = 'No aplica'
+            else:
+                hours = 'No especificada'
+                for h in horaLlegada:
+                    if(h[0]) == idx+1:
+                        hours = str(h[1])
+            if(seleccionar() == 0): 
+                avalaible = ': No aplica'
+            else:
+                avalaible = ''
+                for i,av in enumerate(docksID):
+                    if fm == av:
+                        avalaible = 'desde '+ str(workingHours[i][0])+ ' hasta '+str(workingHours[i][1])
 
             solutionWeather = P_estadost[resultData[1][idx]-1:resultData[2][idx]+shipsUnloadTime[idx]-1]
             #print(solutionWeather)
@@ -257,6 +265,16 @@ def drawSolution(resultData):
                     text='A')                    
                 la.pack()
                 la.place(x=10+((i+1)*50),y=250,height=50, width=50)
+            t = ''
+            if(seleccionar() ==1):
+                if preassignation == 1:
+                    t = '* Preasignación de la hora de llegada es una restricción obligatoria *'
+                else:
+                    t = '* Preasignación de la hora de llegada NO es una restricción obligatoria *'
+                l19 = tk.Label(frame1, bg = 'white', fg = 'black', font =("Courier", 10), height = 3, width = 52, 
+                text=t)
+                l19.pack()
+                l19.place(x=10,y=300,height=40, width=600)
 
 ##Interfaz
 root = Tk()
@@ -326,7 +344,8 @@ rb2.pack(side=LEFT)
 
 ttk.Button(frameG, text='Salir', command=quit).pack(side=LEFT)
 
-boton = ttk.Button(frameG,text="Seleccionar archivo", command= lambda:[selectFile(),cleanRB()])
+boton = ttk.Button(frameG,text="Seleccionar archivo", command= lambda:[selectFile()])
 boton.pack(padx=30,side=LEFT)
+
 
 root.mainloop()
