@@ -1,4 +1,5 @@
 include "globals.mzn"; 
+%%include "datosPruebaMinizinc2.dzn";
 
 %%Entradas
 %%Cantidad de muelles
