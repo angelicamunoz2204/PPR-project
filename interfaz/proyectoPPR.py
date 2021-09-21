@@ -11,7 +11,11 @@ from tkinter.filedialog import askopenfilename
 
 def conectMinizinc(file): 
     # Load  model from file
-    project = Model("../proyectoPR.mzn")
+    if (seleccionar() == 1):
+        project = Model("../proyectoPR.mzn")
+    else:
+        print(seleccionar())
+        ##project = Model("../proyectoPR.mzn")
     # Find the MiniZinc solver configuration 
     ##Para hacerlo con Gecode, cambiar chuffed por gecode
     solver = Solver.lookup("chuffed")
@@ -55,6 +59,12 @@ def arreglo1d_2d2(arr):
     return auxp
 
 ##Funciones
+def seleccionar():
+    return opcion.get()
+
+def cleanRB():
+    opcion.set(None)
+
 def verifications(condition,frame,posx,posy):
     if condition == 1:
         lc = tk.Label(frame, bg ='white', text='✓',fg = 'black', font =("Courier", 20))
@@ -81,8 +91,9 @@ def selectFile():
 def drawSolution(resultData):
 
     if resultData == [[0],[0],[0]]:
-        lb = Label(sFrame, bg = 'beige', fg = 'black', font =("Courier", 18), height = 3, width = 52, 
-        text = "NO HAY SOLUCIÓN").pack()
+        lb = Label(frameG, bg = 'beige', fg = 'black', font =("Courier", 18), height = 1, width = 20, 
+        text = "NO HAY SOLUCIÓN")
+        lb.pack()
     else:
         ##Asignacion variables
         shipsID = resultData[3]['Barcos']
@@ -298,10 +309,25 @@ l2= Label(sFrame, bg = 'beige', fg = 'black', font =("Courier", 12), height = 3,
 text = "Para comenzar, seleccione el archivo .dzn con la información del puerto").pack()
 
 
-boton = ttk.Button(sFrame,text="Seleccionar archivo", command= selectFile)
-boton.place(x=350, y=9)
-boton.pack(pady=10)
+frameF = tk.Frame(sFrame,  bg= 'beige') 
+frameF.place(x= 400, y = 145) 
+frameG = tk.Frame(sFrame,  bg= 'beige') 
+frameG.place(x= 550, y = 180) 
 
+lab = Label(frameF, bg = 'beige', fg = 'black', font =("Courier", 12), height = 1, width = 52, 
+text="¿Desea incluir las restricciones adicionales?").pack(side=LEFT)
 
-ttk.Button(sFrame, text='Salir', command=quit).pack(pady=10,side=TOP)
+opcion = IntVar() 
+rb1 = ttk.Radiobutton(frameF, text="Sí", variable=opcion, command=seleccionar,
+            value=1)
+rb1.pack(side=LEFT)
+rb2 = ttk.Radiobutton(frameF, text="No", variable=opcion, command=seleccionar,
+            value=0)
+rb2.pack(side=LEFT)
+
+ttk.Button(frameG, text='Salir', command=quit).pack(side=LEFT)
+
+boton = ttk.Button(frameG,text="Seleccionar archivo", command= lambda:[selectFile(),cleanRB()])
+boton.pack(padx=30,side=LEFT)
+
 root.mainloop()
