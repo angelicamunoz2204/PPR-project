@@ -30,7 +30,7 @@ P_estadosm=[5,5,5,4,4,5,5,4,4,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,
 
 
 %Restricciones Adicionales:
-horaLlegada=[|1,1|2,15|]; %Barco 1 llega en 2, Barco 2 llega en 15
+horaLlegada=[|1,54|2,15|]; %Barco 1 llega en 2, Barco 2 llega en 15
 horasHabiles = [|1,24|1,144|1,144|]; %Muelle 1 disponible desde 1 hasta 24, Muelle 2 disponible desde 1 hasta 144, Muelle 3 disponible desde 1 hasta 144,
 
-PreasignacionHoraLlegada=0;
+PreasignacionHoraLlegada=1;

@@ -54,4 +54,4 @@ P_estadosm=[4,5,4,4,4,4,4,4,4,4,4,4,
 horaLlegada=[|1,2|2,15|]; %Barco 1 llega desde el slot 2 (es decir en el minuto 5), Barco 2 llega en el slot 15
 horasHabiles = [|1,24|1,144|1,144|]; %Muelle 1 disponible desde el slot 1 hasta 24, Muelle 2 disponible desde 1 hasta 144, Muelle 3 disponible desde 1 hasta 144,
 
-PreasignacionHoraLlegada=0;
+PreasignacionHoraLlegada=1;

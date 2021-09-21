@@ -14,8 +14,7 @@ def conectMinizinc(file):
     if (seleccionar() == 1):
         project = Model("../proyectoPR.mzn")
     else:
-        print(seleccionar())
-        ##project = Model("../proyectoPR.mzn")
+        project = Model("../RBasicas.mzn")
     # Find the MiniZinc solver configuration 
     ##Para hacerlo con Gecode, cambiar chuffed por gecode
     solver = Solver.lookup("chuffed")
